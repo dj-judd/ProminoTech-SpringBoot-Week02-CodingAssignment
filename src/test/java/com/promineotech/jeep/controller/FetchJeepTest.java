@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import com.promineotech.jeep.entity.Jeep;
 import com.promineotech.jeep.entity.JeepModel;
+import com.promineotech.jeep.controller.support.FetchJeepTestSupport;
 import java.util.List;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     "classpath:flyway/migrations/V1.0__Jeep_Schema.sql",
     "classpath:flyway/migrations/V1.1__Jeep_Data.sql"}, 
     config = @SqlConfig(encoding = "utf-8"))
-class FetchJeepTest {
+class FetchJeepTest extends FetchJeepTestSupport {
   
   @LocalServerPort
   private int serverPort;
@@ -43,7 +44,7 @@ class FetchJeepTest {
     String trim = "Sport";
     String uri = String.format("http://localhost:%d/jeeps?model=%s&trim=%s",
         serverPort, model, trim);
-;
+
     
     // When : a connection is made to the URI
 //  Video Method
@@ -55,6 +56,9 @@ class FetchJeepTest {
     // Then : a success (OK-200) status code is returned
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     
+    // And: the actual list returned is the the same as the expected list
+    List<Jeep> expected = buildExpected();
+    assertThat(response.getBody()).isEqualTo(expected);
+    
   }
-
 }
